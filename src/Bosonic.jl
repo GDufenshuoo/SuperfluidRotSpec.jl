@@ -5,6 +5,7 @@ function Wᴮ(X,Y,Z)
     E_n = Eₙ(X,Y,Z)
     W = zeros(N+1)
     W[1] = 1.0
+
     for n in 1:N
         for k in 1:n
             W[n+1] += exp(-E_n[k])*W[n-k+1]
@@ -38,14 +39,3 @@ function Eₙ(X,Y,Z)
     return E_n
 end
 
-function O(n,b)
-    return (n-1)*B + b
-end
-
-function r2(X,i,j)
-    return sum(abs2,X[i]-X[j])
-end
-
-function r2(X,Y,Z,i,j)
-    return r2(X,i,j)+r2(Y,i,j)+r2(Z,i,j)
-end

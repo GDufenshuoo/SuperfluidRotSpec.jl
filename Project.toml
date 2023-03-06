@@ -2,3 +2,8 @@ name = "SuperfluidRotSpec"
 uuid = "c2d533dd-65b6-4fa5-8a3d-b68214249573"
 authors = ["CatGD <53821518+GDufenshuoo@users.noreply.github.com>"]
 version = "0.1.0"
+
+[deps]
+ChebyshevApprox = "17a596ad-87cd-578c-9b6d-01108c31dc04"
+Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
+SmolyakApprox = "6b19cf85-48de-5d9d-bfff-465abea14fab"
