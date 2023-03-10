@@ -1,5 +1,22 @@
 """
-    Bosonic Sampling 
+    Fermions Sampling 
+"""
+function Wᶠ(X,Y,Z)
+    E_n = Eₙ(X,Y,Z)
+    W = zeros(N+1)
+    W[1] = 1.0
+
+    for n in 1:N
+        for k in 1:n
+            W[n+1] += exp(-E_n[k])*W[n-k+1]
+        end
+        W[n+1] /= n
+    end
+    return copy(W[N])
+end
+
+"""
+    Bosons Sampling 
 """
 function Wᴮ(X,Y,Z)
     E_n = Eₙ(X,Y,Z)
