@@ -29,13 +29,27 @@ function Tᵒ(x,b::Int)
 end
 
 """
+### Moving Forward
+"""
+function Tᴬ(x)
+    A = zeros(B,N)
+    L = (b == 1 ? B : b-1)
+    for b in 1:B
+        for i in 1:N
+            A[b,i] = 𝑝(x[L,i],x[b,i])
+    end end
+    return A
+end
+
+"""
 ### A list of moving particles needed
 """
-function δTᵒ(x,b::Int,io::Vector,B::Matrix)
+function δTᵒ!(x,RM,b::Int,io::Vector)
     T = 0.0
     L = (b == 1 ? B : b-1)
-    for i in io
-        T += 𝑝(x[L,i],x[b,i])
+    for i in eachindex(io)
+        n = io[i]
+        T += 𝑝(x[L,n],x[b,n].+RM[i])
     end
     return T
 end
@@ -78,6 +92,19 @@ end
 """
 ### Moving Forward
 """
+function Tᴬ(x)
+    A = zeros(N,N,B)
+    for b in 1:B
+        L = (b == 1 ? B : b-1)
+        for i in 1:N, j in 1:N
+            A[i,j,b] = 𝑝(x[L,i],x[b,j])
+    end end
+    return A
+end
+
+"""
+### Moving Forward
+"""
 function Tᴬᵒ(x,b::Int)
     A = zeros(N,N)
     L = (b == 1 ? B : b-1)
@@ -90,15 +117,16 @@ end
 """
 ### A list of moving particles needed
 """
-function δTᵒ(x,b::Int,io::Vector,B::Matrix)
+function δTᵒ(x,RM,b::Int,io::Vector,C::Matrix)
     A = zeros(N,N)
     L = (b == 1 ? B : b-1)
+    x[b,:] += RM
     for i in 1:N, j in 1:N
         if i in io || j in io
             A[i,j] = 𝑝(x[L,i],x[b,j])
         end
     end
-    return (det((A+B)/B))^2
+    return (det(A+C)-det(C))^2, A+C
 end
 
 function T(x::Boses)
