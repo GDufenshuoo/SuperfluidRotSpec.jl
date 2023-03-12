@@ -24,7 +24,7 @@ struct Potential_{Float64}
     bin::Vector{Float64}
 end
 
-const am2An = 1/5.29177210903e-1
+const am2An = 5.29177210903e-1
 
 const pH2_H2 = set_potention(P_OCS_H["paraH2_paraH2"])
 const OCS_pH2 = set_potention(P_OCS_H["OCS_paraH2"])
