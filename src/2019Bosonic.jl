@@ -8,13 +8,13 @@ function 𝑇ᴱ(x,N,B,β)
     𝑘 = -0.5*B/β
     A = Zygote.Buffer(zeros(),N,3)
 
-    for i in 1:N
+    @floop for i in 1:N
         for b in 2:B
             A[i,3] += 𝑝(x[:,b-1,i],x[:,b,1])
     end end
 
     # Can be better but i don't want to :3
-    for k in 1:N
+    @floop for k in 1:N
         for i in N-k+1:N
         R = (i == N) ? N-k+1 : i
         A[i,2] += 𝑝(x[:,B,i],x[:,1,R]) + 
