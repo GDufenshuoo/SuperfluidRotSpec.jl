@@ -1,6 +1,8 @@
 module SuperfluidRotSpec
 
 export 𝑇ᴱ
+export K_Modelly, Atomicᵁ, Unit
+export PI
 
 using DynamicHMC, ForwardDiff, LogDensityProblemsAD, Random
 using UnPack
@@ -24,7 +26,7 @@ struct Unit{F<:Real}
     Eᵁₖ::F
 end
 
-Atomicᵁ = Unit(1.,1.,1.,1.,1.,1.,1.,3.1668105084779793e-6)
+const Atomicᵁ = Unit(1.,1.,1.,1.,1.,1.,1.,3.1668105084779793e-6)
 
 """
 Electric Interaction
@@ -35,7 +37,15 @@ struct K_Model{I<:Integer,F<:Real}
     β::F
 end
 
-function K_Modelly(N::Int64, B::Int64, T::Float64, U::Unit{Float64})
+"""
+# Set the Model
+`N`: Number of Particle
+`B`: Beads of Path
+`T`: Temperature/K
+
+`U`: Atomic unit default
+"""
+function K_Modelly(N::Int64, B::Int64, T::Float64;U::Unit{Float64}=Atomicᵁ)
     @unpack mₑ, ħ, Eᵁₖ = U
     β = 1/(Eᵁₖ*T)
     K_Model(N,B,β)
@@ -43,36 +53,44 @@ end
 
 function (Problem::K_Model)(φ)
     @unpack N, B, β = Problem
-    βE = 𝑇ᴱ(reshape(φ,3,B,N),N,B,β) + 𝑈(reshape(φ,3,B,N),N,B)
-    return -βE
+    E = 𝑇ᴱ(reshape(φ,3,B,N),N,B,β)/β + 𝑈(reshape(φ,3,B,N),N,B)
+    return -E
 end
-
-Problem = K_Modelly(2, 2^10, 0.15, Atomicᵁ)
-
-ℓ_dims = 3*Problem.N*Problem.B
-T = as(Array, ℓ_dims);
-ℓ = TransformedLogDensity(T, Problem);  
-∇ℓ = ADgradient(:Zygote, ℓ);
-
-rng = Random.GLOBAL_RNG
-
-wu = DynamicHMC.default_warmup_stages()
 
 function extract_initialization(state)
     (; Q, κ, ϵ) = state.final_warmup_state
     (; q = Q.q, κ, ϵ)
 end
 
-# state1 = DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, 0; warmup_stages = wu[1:1])
-# state2 = DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, 0; warmup_stages = wu[2:2],
-                                    #  initialization = extract_initialization(state1))
-# state3 = DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, 0; warmup_stages = wu[3:3],
-#                                      initialization = extract_initialization(state2))
-# state4 = DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, 0; warmup_stages = wu[4:4],
-#                                      initialization = extract_initialization(state3))
-# state5 = DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, 0; warmup_stages = wu[5:5],
-#                                      initialization = extract_initialization(state4))
-                                
-# just keep doing this, and run the last stage with as many samples as you need
+"""
+
+"""
+function PI(Problem::K_Model,warmup::Int,Num::Int)
+    @unpack N,B = Problem
+    ℓ_dims = 3*N*B
+    T = as(Array, ℓ_dims);
+    ℓ = TransformedLogDensity(T, Problem);  
+    ∇ℓ = ADgradient(:Zygote, ℓ);
+    rng = Random.GLOBAL_RNG
+    state,warmup_stage = HMC_warmup(rng,∇ℓ,warmup)
+    return DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, Num;
+            warmup_stages = wu[warmup_stage:warmup_stage],
+            initialization = extract_initialization(state))
+end
+
+function HMC_warmup(rng,∇ℓ,warmup::Int)
+    # just keep doing this, and run the last stage with as many samples as you need
+    if warmup > 5
+        println("warmup_stages should less then 6: Auto-set warmup = 5")
+        warmup = 5
+    end
+    wu = DynamicHMC.default_warmup_stages()
+    state = DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, 0; warmup_stages = wu[1:1])
+    for i in 1:warmup-1
+        state = DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, 0; warmup_stages = wu[i+1:i+1],
+                                            initialization = extract_initialization(state))
+    end
+    return stage, warmup+1
+end
 
 end
