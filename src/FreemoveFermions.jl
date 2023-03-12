@@ -1,3 +1,6 @@
+"""
+# The part to simulate fermions
+"""
 function 𝑇ᴱ(x,N,B,β)
     T = 0.0
     k = B/β
@@ -7,6 +10,9 @@ function 𝑇ᴱ(x,N,B,β)
     return -log(T^2)/β
 end
 
+"""
+Under developing
+"""
 function AD(x,N,B,b,k)
     A = Zygote.Buffer(zeros(),N, N)
     L = (b == 1 ? B : b-1)
