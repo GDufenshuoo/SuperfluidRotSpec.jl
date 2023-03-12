@@ -1,19 +1,41 @@
+"""
+# Bosonic 𝑇 using The method from the 
+    DOI: 10.1073/pnas.1913365116
+    "Path integral molecular dynamics for bosons"
+### Almost as fast as it can be
+"""
 function 𝑇ᴱ(x,N,B,β)
-    T = 0.0
-    k = B/β
-    for b in 1:B
-        T += det(AD(x,N,B,b,k))
-    end
-    return -log(T^2)/β
-end
+    𝑘 = -0.5*B/β
+    A = Zygote.Buffer(zeros(),N,3)
 
-function AD(x,N,B,b,k)
-    A = Zygote.Buffer(zeros(),N, N)
-    L = (b == 1 ? B : b-1)
-    for i in 1:N, j in 1:N
-        A[i,j] = exp(-0.5/k*𝑝(x[:,L,i],x[:,b,j]))
-    end
-    return copy(A)
+    for i in 1:N
+        for b in 2:B
+            A[i,3] += 𝑝(x[:,b-1,i],x[:,b,1])
+    end end
+
+    # Can be better but i don't want to :3
+    for k in 1:N
+        for i in N-k+1:N
+        R = (i == N) ? N-k+1 : i
+        A[i,2] += 𝑝(x[:,B,i],x[:,1,R]) + 
+                    + A[i,3]
+    end end
+
+    # EN(k) = A[i,2]
+    # exp(k*VB(N-k)) = A[i-k,1]
+    for i in 1:N
+        for k in 1:i
+            if i == k
+                A[i,1] += (exp(𝑘*(
+                    A[i,2]
+                )))/i
+            else
+                A[i,1] += A[i-k,1]*(exp(𝑘*(
+                    A[i,2]
+                )))/i
+    end end end
+
+    return -log.(copy(A[N,1]))
 end
 
 """
@@ -27,23 +49,3 @@ function 𝑝(a,b)
     return p
 end
 
-function 𝑈(a,b)
-    U = 0.0
-    U += 3/(norm(a)+1e-10)
-    U += 3/(norm(b)+1e-10)
-    U -= 1/(norm(a.-b)+1e-10)
-    return U
-end
-
-function 𝑈(x,N,B)
-    U = 0.0
-    for i in 1:N
-        for b in 1:B
-            U += 3/(norm(x[:,b,i])+1e-10)
-    end end
-    for i in 2:N
-        for j in 1:i, b in 1:B
-            U -= 1/(norm(x[:,b,i].-x[:,b,j])+1e-10)
-    end end
-    return U/B
-end

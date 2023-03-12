@@ -39,9 +39,8 @@ end
 
 function (Problem::K_Model)(φ)
     @unpack N, B, β = Problem
-    # βE = 𝑇ᴱ(reshape(φ,3,B,N),N,B,β) + 
-    return 𝑈(reshape(φ,3,B,N),N,B)
-    # return -βE
+    βE = 𝑇ᴱ(reshape(φ,3,B,N),N,B,β) + 𝑈(reshape(φ,3,B,N),N,B)
+    return -βE
 end
 
 Problem = K_Modelly(2, 2^10, 0.15, Atomicᵁ)

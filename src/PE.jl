@@ -25,7 +25,6 @@ struct Potential_{Float64}
 end
 
 const am2An = 5.29177210903e-1
-
 const pH2_H2 = set_potention(load("OCS.PES")["paraH2_paraH2"])
 const OCS_pH2 = set_potention(load("OCS.PES")["OCS_paraH2"])
 
