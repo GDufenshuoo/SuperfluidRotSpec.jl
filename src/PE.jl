@@ -1,5 +1,5 @@
 using JLD2
-using Floops
+using FLoops
 using Interpolations
 
 function set_potention(Pot)
@@ -26,26 +26,24 @@ end
 
 const am2An = 5.29177210903e-1
 
-const pH2_H2 = set_potention(P_OCS_H["paraH2_paraH2"])
-const OCS_pH2 = set_potention(P_OCS_H["OCS_paraH2"])
+const pH2_H2 = set_potention(load("OCS.PES")["paraH2_paraH2"])
+const OCS_pH2 = set_potention(load("OCS.PES")["OCS_paraH2"])
 
 function 𝑈(x,N,B)
-    U = 0.0
-    for i in 1:N
-        @floop for b in 1:B
+    U1 = 0.0
+    U2 = 0.0
+    @floop for i in 1:N
+        for b in 1:B
             r = norm(x[:,b,i])*am2An
             cos = x[1,b,i]/r
-            if r > 30 
-                U += 0.0
-            else
-                U += OCS_pH2(r,cos)
-            end
+            @reduce U1 += (r > 30.0 ? 0.0 : OCS_pH2(r,cos))
     end end
-    for i in 2:N
+    @floop for i in 2:N
         for j in 1:i
-            @floop for b in 1:B
-            U += pH2_H2(norm(x[:,b,i].-x[:,b,j])*am2An)
+            for b in 1:B
+                @reduce U2 += pH2_H2(norm(x[:,b,i].-x[:,b,j])*am2An)
     end end end
-    return U/B
+    return (U1+U2)/B
 end
+
 
