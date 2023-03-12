@@ -5,7 +5,8 @@ using TransformedLogDensities,TransformVariables
 using LinearAlgebra
 using Zygote
 
-include("Freemove.jl")
+include("2019Bosonic.jl")
+include("PE.jl")
 
 struct Unit{F<:Real}
     cᵁ::F
@@ -38,11 +39,12 @@ end
 
 function (Problem::K_Model)(φ)
     @unpack N, B, β = Problem
-    βE = 𝑇ᴱ(reshape(φ,3,B,N),N,B,β)
-    return -βE
+    # βE = 𝑇ᴱ(reshape(φ,3,B,N),N,B,β) + 
+    return 𝑈(reshape(φ,3,B,N),N,B)
+    # return -βE
 end
 
-Problem = K_Modelly(2, 12, 10000.0, Atomicᵁ)
+Problem = K_Modelly(2, 2^10, 0.15, Atomicᵁ)
 
 ℓ_dims = 3*Problem.N*Problem.B
 T = as(Array, ℓ_dims);
