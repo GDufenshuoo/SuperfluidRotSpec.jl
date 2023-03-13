@@ -1,7 +1,7 @@
 name = "SuperfluidRotSpec"
 uuid = "dc1ff568-94fa-4ad3-b92b-d84550c04ff1"
 authors = ["CatGD <53821518+GDufenshuoo@users.noreply.github.com> and contributors"]
-version = "1.0.0-DEV"
+version = "1.0.0"
 
 [deps]
 DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
