@@ -36,21 +36,12 @@ end
 
 function (Problem::SuperfulidRotor)(φ)
     @unpack N, B, β = Problem
-    E = 𝑇ᴱ(reshape(φ,3,B,N),Problem::SuperfulidRotor) + 
-        𝑈(reshape(φ,3,B,N),Problem::SuperfulidRotor)
+    E = 𝑇ᴱ_B2019(reshape(φ,3,B,N),N,B,β) + 
+        𝑈(reshape(φ,3,B,N),N,B,rotor,superfulid)
     return -E
 end
 
-"""
-# The part to simulate fermions
-"""
-function 𝑇ᴱ(x,Problem::SuperfulidRotor)
-    @unpack N,B,β = Problem
-    return 𝑇ᴱ_B2019(x,N,B,β)
-end
-
-function 𝑈(x,Problem::SuperfulidRotor)
-    @unpack N,B,rotor,superfulid = Problem
+function 𝑈(x,N::Int,B::Int,rotor,superfulid)
     U1 = 0.0
     U2 = 0.0
     @floop for i in 1:N

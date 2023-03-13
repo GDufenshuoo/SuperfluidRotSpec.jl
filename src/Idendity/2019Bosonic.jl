@@ -4,7 +4,7 @@
     "Path integral molecular dynamics for bosons"
 ### Almost as fast as it can be
 """
-function 𝑇ᴱ_B2019(x,N,B,β)
+function 𝑇ᴱ_B2019(x,N::Int,B::Int,β::Real)
     𝑘 = -0.5*B/β
     A = Zygote.Buffer(zeros(),N,3)
 

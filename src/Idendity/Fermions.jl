@@ -17,7 +17,7 @@ function AD(x,N,B,b,k)
     A = Zygote.Buffer(zeros(),N, N)
     L = (b == 1 ? B : b-1)
     for i in 1:N, j in 1:N
-        A[i,j] = exp(-0.5/k*𝑝(x[:,L,i],x[:,b,j]))
+        A[i,j] = exp(-0.5*k*𝑝(x[:,L,i],x[:,b,j]))
     end
     return copy(A)
 end

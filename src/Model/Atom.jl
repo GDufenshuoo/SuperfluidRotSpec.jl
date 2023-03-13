@@ -3,6 +3,8 @@
 `N`: Number of Particle
 `B`: Beads of Path
 `Z`: Atomic Number
+`T`: Temperature/K
+`U`: Atomic unit (default)
 """
 struct Atom_Model{I<:Integer,F<:Real}
     N::I
@@ -12,54 +14,34 @@ struct Atom_Model{I<:Integer,F<:Real}
     eꜛ::I
 end
 
-
-"""
-# Set the Model
-`N`: Number of Particle
-`B`: Beads of Path
-`T`: Temperature/K
-
-`U`: Atomic unit (default)
-"""
-function Atom_Model(N::Int64, B::Int64, T::Float64, Z::Int, eꜛ::Int;U::Unit{Float64}=Atomicᵁ)
+function Atom_Model(N::Int64, B::Int64, Z::Int, eꜛ::Int, T::Float64;U::Unit{Float64}=Atomicᵁ)
     @unpack mₑ, ħ, Eᵁₖ = U
     β = 1/(Eᵁₖ*T)
-    K_Model(N,B,β,Z,eꜛ)
+    Atom_Model(N,B,β,Z,eꜛ)
 end
 
 function (Problem::Atom_Model)(φ)
-    @unpack N, B, β = Problem
-    E = 𝑇ᴱ(reshape(φ,3,B,N),Problem::Atom_Model) + 
-        𝑈(reshape(φ,3,B,N),Problem::Atom_Model)
+    @unpack N, B, β, Z, eꜛ = Problem
+    E = 𝑇ᴱ(reshape(φ,3,B,N),N,B,β,eꜛ) + 
+        𝑈(reshape(φ,3,B,N),N,B,Z)*β
     return -E
 end
 
 """
 # The part to simulate fermions
 """
-function 𝑇ᴱ(x,Problem::Atom_Model)
-    @unpack N,B,β,eꜛ = Problem
+function 𝑇ᴱ(x,N::Int,B::Int,β::Real,eꜛ::Int)
     T = 0.0
     k = B/β
 
     for b in 1:B
-        T += det(AD(x[:,:,1:eꜛ],N,B,b,k)) +
-            det(AD(x[:,:,eꜛ+1:N],N,B,b,k))
+        T += det(AD(x[:,:,1:eꜛ],eꜛ,B,b,k)) +
+            det(AD(x[:,:,eꜛ+1:N],N-eꜛ,B,b,k))
     end
-    return -log(T^2)/β
+    return -log(T^2)
 end
 
-function AD(x,N,B,b,k)
-    A = Zygote.Buffer(zeros(),N, N)
-    L = (b == 1 ? B : b-1)
-    for i in 1:N, j in 1:N
-        A[i,j] = exp(-0.5/k*𝑝(x[:,L,i],x[:,b,j]))
-    end
-    return copy(A)
-end
-
-function 𝑈(x,Problem::Atom_Model)
-    @unpack N,B,Z = Problem
+function 𝑈(x,N::Int,B::Int,Z::Int)
     U = 0.0
     for i in 1:N
         for b in 1:B

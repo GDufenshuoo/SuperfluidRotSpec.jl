@@ -30,7 +30,7 @@ export Potential
 export set_potention
 
 include("Model/Model.jl")
-export Atom_Model
+export Atom_Model,Set_Atom_Model
 export SuperfulidRotor
 
 end
