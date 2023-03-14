@@ -18,7 +18,7 @@ function runHMC(Problem,warmup::Int,Num::Int)
 
     state, warmup_stage = HMC_warmup(rng,∇ℓ,warmup,wu)
     
-    return DynamicHMC.mcmc_keep_warmup(rng, ∇ℓ, Num;
+    return DynamicHMC.mcmc_with_warmup(rng, ∇ℓ, Num;
             warmup_stages = wu[warmup_stage:warmup_stage],
             initialization = extract_initialization(state))
 end

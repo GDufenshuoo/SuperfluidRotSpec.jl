@@ -14,7 +14,7 @@ struct Atom_Model{I<:Integer,F<:Real}
     eꜛ::I
 end
 
-function Atom_Model(N::Int64, B::Int64, Z::Int, eꜛ::Int, T::Float64;U::Unit{Float64}=Atomicᵁ)
+function Atom_Model(N::Int64, B::Int64, Z::Int, eꜛ::Int, T::Float64; U::Unit{Float64}=Atomicᵁ)
     @unpack mₑ, ħ, Eᵁₖ = U
     β = 1/(Eᵁₖ*T)
     Atom_Model(N,B,β,Z,eꜛ)
@@ -22,9 +22,8 @@ end
 
 function (Problem::Atom_Model)(φ)
     @unpack N, B, β, Z, eꜛ = Problem
-    E = 𝑇ᴱ_Atom(reshape(φ,3,B,N),N,B,β,eꜛ) + 
-        𝑈_Atom(reshape(φ,3,B,N),N,B,Z)
-    return -E
+    E = 𝑈_Atom(reshape(φ,3,B,N),N,B,Z)
+    return E
 end
 
 """
@@ -42,14 +41,15 @@ function 𝑇ᴱ_Atom(x,N::Int,B::Int,β::Real,eꜛ::Int)
 end
 
 function 𝑈_Atom(x,N::Int,B::Int,Z::Int)
-    U = 0.0
-    @floop for i in 1:N
+    U1 = 0.0
+    U2 = 0.0
+    for i in 1:N
         for b in 1:B
-            @reduce U += Z/(norm(x[:,b,i])+1e-10)
+            U1 -= 1/norm(x[:,b,i])
     end end
-    @floop for i in 2:N
-        for j in 1:i, b in 1:B
-            @reduce U -= 1/(norm(x[:,b,i].-x[:,b,j])+1e-10)
+    for i in 2:N
+        for j in 1:i-1, b in 1:B
+            U2 += 1/norm(x[:,b,i].-x[:,b,j])
     end end
-    return U/B
+    return (Z*U1+U2)/B
 end

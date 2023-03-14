@@ -53,7 +53,7 @@ function 𝑈_SuperfulidRotor(x,N::Int,B::Int,rotor,superfulid,am2An::Real)
             @reduce U1 += (r > 30.0 ? 0.0 : rotor(r,cos))
     end end
     @floop for i in 2:N
-        for j in 1:i
+        for j in 1:i-1
             for b in 1:B
                 @reduce U2 += superfulid(norm(x[:,b,i].-x[:,b,j])*am2An)
     end end end
