@@ -22,34 +22,34 @@ end
 
 function (Problem::Atom_Model)(φ)
     @unpack N, B, β, Z, eꜛ = Problem
-    E = 𝑇ᴱ(reshape(φ,3,B,N),N,B,β,eꜛ) + 
-        𝑈(reshape(φ,3,B,N),N,B,Z)*β
+    E = 𝑇ᴱ_Atom(reshape(φ,3,B,N),N,B,β,eꜛ) + 
+        𝑈_Atom(reshape(φ,3,B,N),N,B,Z)
     return -E
 end
 
 """
 # The part to simulate fermions
 """
-function 𝑇ᴱ(x,N::Int,B::Int,β::Real,eꜛ::Int)
+function 𝑇ᴱ_Atom(x,N::Int,B::Int,β::Real,eꜛ::Int)
     T = 0.0
-    k = B/β
+    k = -0.5*B/β
 
     for b in 1:B
-        T += det(AD(x[:,:,1:eꜛ],eꜛ,B,b,k)) +
-            det(AD(x[:,:,eꜛ+1:N],N-eꜛ,B,b,k))
+        T += AD(x[:,:,1:eꜛ],eꜛ,B,b,k) + 
+            AD(x[:,:,eꜛ+1:N],N-eꜛ,B,b,k)
     end
-    return -log(T^2)
+    return -log(abs(T))*2/β
 end
 
-function 𝑈(x,N::Int,B::Int,Z::Int)
+function 𝑈_Atom(x,N::Int,B::Int,Z::Int)
     U = 0.0
-    for i in 1:N
+    @floop for i in 1:N
         for b in 1:B
-            U += Z/(norm(x[:,b,i])+1e-10)
+            @reduce U += Z/(norm(x[:,b,i])+1e-10)
     end end
-    for i in 2:N
+    @floop for i in 2:N
         for j in 1:i, b in 1:B
-            U -= 1/(norm(x[:,b,i].-x[:,b,j])+1e-10)
+            @reduce U -= 1/(norm(x[:,b,i].-x[:,b,j])+1e-10)
     end end
     return U/B
 end

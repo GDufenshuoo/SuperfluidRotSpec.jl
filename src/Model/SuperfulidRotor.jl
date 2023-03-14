@@ -18,6 +18,7 @@ struct SuperfulidRotor{I<:Integer,F<:Real,PES}
     β::F
     rotor::PES
     superfulid::PES
+    am2An::F
 end
 
 function SuperfulidRotor(N::Int64, B::Int64, T::Float64, 
@@ -30,18 +31,19 @@ function SuperfulidRotor(N::Int64, B::Int64, T::Float64,
     return SuperfulidRotor(
         N,B,β,
         set_potention(load(file)[rotor]),
-        set_potention(load(file)[superfulid])
-            )
+        set_potention(load(file)[superfulid]),
+        am2An
+        )
 end
 
 function (Problem::SuperfulidRotor)(φ)
-    @unpack N, B, β = Problem
+    @unpack N, B, β, am2An = Problem
     E = 𝑇ᴱ_B2019(reshape(φ,3,B,N),N,B,β) + 
-        𝑈(reshape(φ,3,B,N),N,B,rotor,superfulid)
+        𝑈_SuperfulidRotor(reshape(φ,3,B,N),N,B,rotor,superfulid,am2An)
     return -E
 end
 
-function 𝑈(x,N::Int,B::Int,rotor,superfulid)
+function 𝑈_SuperfulidRotor(x,N::Int,B::Int,rotor,superfulid,am2An::Real)
     U1 = 0.0
     U2 = 0.0
     @floop for i in 1:N
