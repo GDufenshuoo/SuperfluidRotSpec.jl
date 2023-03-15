@@ -1,13 +1,13 @@
 """
 # The part to simulate fermions
 """
-function 𝑇ᴱ(x,N,B,β)
+function 𝑇ᴱ(x,N,B,τ)
     T = 0.0
-    k = -0.5*B/β
+    k = -0.5*B*τ
     @floop for b in 1:B
         T += AD(x,N,B,b,k)
     end
-    return -log(T^2)/β
+    return -log(T^2)*τ
 end
 
 """

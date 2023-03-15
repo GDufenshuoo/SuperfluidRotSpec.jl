@@ -24,6 +24,20 @@ function runHMC(Problem,warmup::Int,Num::Int)
 end
 
 """
+## run HMC to solve the problem
+"""
+function runHMC(Problem,Num::Int)
+    @unpack N,B = Problem
+    println(show(Problem),"\n Begin to HMC")
+    ℓ_dims = 3*N*B
+    T = as(Array, ℓ_dims);
+    ℓ = TransformedLogDensity(T, Problem);  
+    ∇ℓ = ADgradient(:Zygote, ℓ);
+    rng = Random.GLOBAL_RNG
+    return DynamicHMC.mcmc_KEEP_warmup(rng, ∇ℓ, Num;)
+end
+
+"""
 It Can't be more usefull (although not a very good code)
 """
 function HMC_warmup(rng,∇ℓ,warmup::Int,wu)
