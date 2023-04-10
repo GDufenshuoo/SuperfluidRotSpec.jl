@@ -29,6 +29,7 @@ LogDensityProblems.capabilities(::Type{LogTargetDensity}) = LogDensityProblems.L
 D = 3*N*B; initial_θ = P[:]
 ℓπ = LogTargetDensity(D)
 
+<<<<<<< Updated upstream
 # Set the number of samples to draw and warmup iterations
 n_samples, n_adapts = 100, 50
 
@@ -59,3 +60,5 @@ samples, stats = AdvancedHMC.sample(hamiltonian, proposal, initial_θ, n_samples
 # using Plots
 
 # plot(samples[1000][:])
+=======
+>>>>>>> Stashed changes
