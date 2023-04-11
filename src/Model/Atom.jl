@@ -1,3 +1,5 @@
+# Need fix
+
 """
 ## Electric Interaction of Atom
 `N`: Number of Particle
@@ -9,7 +11,7 @@
 struct Atom_Model{I<:Integer,F<:Real}
     N::I
     B::I
-    τ::F
+    β::F
     Z::I
     eꜛ::I
 end
@@ -20,8 +22,8 @@ function Atom_Model(N::Int64, B::Int64, Z::Int, eꜛ::Int, T::Float64; U::Unit{F
 end
 
 function (Problem::Atom_Model)(φ)
-    @unpack N, B, τ, Z, eꜛ = Problem
-    E = 𝑇ᴱ_Atom(reshape(φ,3,B,N),N,B,τ,eꜛ) + 
+    @unpack N, B, β, Z, eꜛ = Problem
+    E = 𝑇ᴱ_Atom(reshape(φ,3,B,N),N,B,β,eꜛ) + 
         𝑈_Atom(reshape(φ,3,B,N),N,B,Z)
     return -E
 end
@@ -29,14 +31,14 @@ end
 """
 # The part to simulate fermions
 """
-function 𝑇ᴱ_Atom(x,N::Int,B::Int,τ::Real,eꜛ::Int)
+function 𝑇ᴱ_Atom(x,N::Int,B::Int,β::Real,eꜛ::Int)
     T = 0.0
-    k = -0.5*B*τ
+    k = -0.5*B/β
     for b in 1:B
         T += AD(x[:,:,1:eꜛ],eꜛ,B,b,k) +
             AD(x[:,:,eꜛ+1:N],N-eꜛ,B,b,k)
     end
-    return -log(abs(T))*2τ
+    return -log(abs(T))*2β
 end
 
 function 𝑈_Atom(x,N::Int,B::Int,Z::Int)

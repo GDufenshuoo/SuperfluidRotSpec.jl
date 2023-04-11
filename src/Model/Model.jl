@@ -1,14 +1,9 @@
 
-"""
 # Atom_Model
-"""
-
 include("Atom.jl")
 
-"""
-# SuperfulidRotor_Model
-"""
-
-include("SuperfulidRotor.jl")
+# SuperfluidRotor_Model
+include("SuperfluidRotor.jl")
+include("ClassicRotor.jl")
 
 

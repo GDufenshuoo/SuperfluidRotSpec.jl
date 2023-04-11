@@ -4,17 +4,18 @@
     "Path integral molecular dynamics for bosons"
 ### Almost as fast as it can be
 """
-function 𝑇ᴱ_B2019(x,N::Int,B::Int,τ::Real)
-    𝑘 = -0.5*B*τ
-    A = Zygote.Buffer(zeros(),N,3)
+function 𝑇ᴱ_B2019(x,N::Int,B::Int,β::Real)
+    𝑘 = -0.5*B/β
+    A = zeros(Real,N,3)
+    A[:,1] .= 1.0
 
-    @floop for i in 1:N
+    for i in 1:N
         for b in 2:B
             A[i,3] += 𝑝(x[:,b-1,i],x[:,b,1])
     end end
 
     # Can be better but i don't want to :3
-    @floop for k in 1:N
+    for k in 1:N
         for i in N-k+1:N
         R = (i == N) ? N-k+1 : i
         A[i,2] += 𝑝(x[:,B,i],x[:,1,R]) + 
@@ -35,7 +36,7 @@ function 𝑇ᴱ_B2019(x,N::Int,B::Int,τ::Real)
                 )))/i
     end end end
 
-    return -log.(copy(A[N,1]))*τ
+    return log(A[N,1])
 end
 
 

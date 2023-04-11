@@ -2,18 +2,22 @@ module SuperfluidRotSpec
 
 include("Units.jl")
 
-using DynamicHMC
-using Zygote
-using LogDensityProblemsAD
+using LogDensityProblems
+# using LogDensityProblemsAD
 using Random
 using UnPack
 using TransformedLogDensities
 using TransformVariables
 
-include("HMC.jl")
-export runHMC
+using ReverseDiff
 
-using FLoops
+# using DynamicHMC
+# using Zygote
+# include("HMC.jl")
+# export runHMC
+# using FLoops
+
+using Statistics
 using LinearAlgebra
 
 include("Idendity/PI.jl")
@@ -31,6 +35,14 @@ export set_potention
 
 include("Model/Model.jl")
 export Atom_Model,Set_Atom_Model
-export SuperfulidRotor
+export SuperfluidRotor
+export ClassicRotor,C2Q_init
+
+using AdvancedHMC
+include("HMC_AdvancedHMC.jl")
+export runHMC
+
+include("Observe.jl")
+export Observe
 
 end

@@ -1,13 +1,13 @@
 """
 # The part to simulate fermions
 """
-function 𝑇ᴱ(x,N,B,τ)
+function 𝑇ᴱ(x,N,B,β)
     T = 0.0
-    k = -0.5*B*τ
-    @floop for b in 1:B
+    k = -0.5*B/β
+    for b in 1:B
         T += AD(x,N,B,b,k)
     end
-    return -log(T^2)*τ
+    return -log(T^2)/β
 end
 
 """
@@ -17,7 +17,7 @@ function AD(x,N,B,b,k)
     ans = 1.0
     A = Zygote.Buffer(zeros(),N, N)
     L = (b == 1 ? B : b-1)
-    @floop for i in 1:N, j in 1:N
+    for i in 1:N, j in 1:N
         A[i,j] = exp(k*𝑝(x[:,L,i],x[:,b,j]))
     end
     for j = 1:N-1

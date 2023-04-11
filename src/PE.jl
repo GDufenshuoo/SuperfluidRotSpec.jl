@@ -1,9 +1,14 @@
-function set_potention(Pot)
+
+"""
+am2An = 5.29177210903e-1
+"""
+function set_potention(Pot;U2u=1.0)
 
     if Pot.Dimension == 1
-        scale = (Pot.scale_begin[1]:Pot.bin[1]:Pot.scale_end[1])
+        scale = (Pot.scale_begin[1]*U2u:Pot.bin[1]*U2u:Pot.scale_end[1]*U2u)
     elseif Pot.Dimension == 2
-        scale = (Pot.scale_begin[1]:Pot.bin[1]:Pot.scale_end[1], Pot.scale_begin[2]:Pot.bin[2]:Pot.scale_end[2])
+        scale = (Pot.scale_begin[1]*U2u:Pot.bin[1]*U2u:Pot.scale_end[1]*U2u, 
+        Pot.scale_begin[2]*U2u:Pot.bin[2]*U2u:Pot.scale_end[2]*U2u)
     end
 
     return LinearInterpolation(
