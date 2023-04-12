@@ -14,23 +14,23 @@
 """
 struct ClassicRotor{I<:Integer,F<:Real,PES_r,PES_f}
     N::I
-    β::F
+    τ::F
     rotor::PES_r
     superfluid::PES_f
 end
 
 function ClassicRotor(ℓ::SuperfluidRotor)
-    @unpack N, β, rotor, superfluid = ℓ
+    @unpack N, τ, rotor, superfluid = ℓ
 
-    return ClassicRotor(N,β,rotor,superfluid)
+    return ClassicRotor(N,τ,rotor,superfluid)
 end
 
 LogDensityProblems.capabilities(::ClassicRotor) = LogDensityProblems.LogDensityOrder{1}()
 LogDensityProblems.dimension(ℓ::ClassicRotor) = 3*N
 
 function (Problem::ClassicRotor)(φ)
-    @unpack N, β, rotor, superfluid = Problem
-    return -β*𝑈_SuperfluidRotor(reshape(φ,3,1,N),N,1,rotor,superfluid)
+    @unpack N, τ, rotor, superfluid = Problem
+    return -𝑈_SuperfluidRotor(reshape(φ,3,1,N),N,1,τ,rotor,superfluid)
 end
 
 function C2Q_init(lP,ℓ)

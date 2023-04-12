@@ -4,8 +4,8 @@
     "Path integral molecular dynamics for bosons"
 ### Almost as fast as it can be
 """
-function 𝑇ᴱ_B2019(x,N::Int,B::Int,β::Real)
-    𝑘 = -0.5*B/β
+function 𝑇ᴱ_B2019(x,N::Int,B::Int,τ::Real)
+    𝑘 = -1/2τ
     A = zeros(Real,N,3)
     A[:,1] .= 1.0
 

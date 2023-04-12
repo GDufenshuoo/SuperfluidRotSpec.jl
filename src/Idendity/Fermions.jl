@@ -1,9 +1,9 @@
 """
 # The part to simulate fermions
 """
-function 𝑇ᴱ(x,N,B,β)
+function 𝑇ᴱ(x,N::Int,B::Int,τ::Real)
     T = 0.0
-    k = -0.5*B/β
+    k = -1/2τ
     for b in 1:B
         T += AD(x,N,B,b,k)
     end
