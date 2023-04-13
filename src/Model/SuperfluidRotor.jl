@@ -16,6 +16,7 @@ struct SuperfluidRotor{I<:Integer,F<:Real,PES_r,PES_f}
     N::I
     B::I
     τ::F
+    E2e::F
     rotor::PES_r
     superfluid::PES_f
 end
@@ -26,24 +27,24 @@ function SuperfluidRotor(N::Int64, B::Int64, T::Real,
 
     @unpack mₑ, ħ, Eᵁₖ = U
     β = 1/(Eᵁₖ*T)
-    τ = E2e*β/B
+    τ = β/B
     
     return SuperfluidRotor(
-        N,B,τ,
+        N,B,τ,E2e,
         set_potention(load(file)[rotor];L2l),
         set_potention(load(file)[superfluid];L2l)
         )
 end
 
 function (Problem::SuperfluidRotor)(φ)
-    @unpack N, B, τ, rotor, superfluid = Problem
+    @unpack N, B, τ, rotor, superfluid,E2e = Problem
     βE = (
         𝑇ᴱ_B2019(reshape(φ,3,B,N),N,B,τ) - 
-        𝑈_SuperfluidRotor(reshape(φ,3,B,N),N,B,τ,rotor,superfluid))
+        𝑈_SuperfluidRotor(reshape(φ,3,B,N),N,B,τ,rotor,superfluid;E2e))
     return βE
 end
 
-function 𝑈_SuperfluidRotor(x,N::Int,B::Int,τ::Real,rotor,superfluid)
+function 𝑈_SuperfluidRotor(x,N::Int,B::Int,τ::Real,rotor,superfluid;E2e=1.0)
     U1 = 0.0
     U2 = 0.0
     for i in 1:N
@@ -57,5 +58,5 @@ function 𝑈_SuperfluidRotor(x,N::Int,B::Int,τ::Real,rotor,superfluid)
             for b in 1:B
                 U2 += superfluid(norm(x[:,b,i].-x[:,b,j]))
     end end end
-    return (U1+U2)*τ
+    return (U1+U2)*τ*E2e
 end
