@@ -5,7 +5,7 @@ B = 2^7
 T = 0.01
 Z = 1
 eꜛ = 1
-"""Atom_Model(N::Int64, B::Int64, T::Float64, Z::Int, eꜛ::Int;U::Unit{Float64}=Atomicᵁ)"""
+"""Atom_Model(N::Int, B::Int, T::Float64, Z::Int, eꜛ::Int;U::Unit{Float64}=Atomicᵁ)"""
 Problem = Atom_Model(N,B,Z,eꜛ,T)
 using BenchmarkTools
 Problem(rand(3*N*B))

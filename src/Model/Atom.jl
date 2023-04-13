@@ -16,7 +16,7 @@ struct Atom_Model{I<:Integer,F<:Real}
     eꜛ::I
 end
 
-function Atom_Model(N::Int64, B::Int64, Z::Int, eꜛ::Int, T::Float64; U::Unit{Float64}=Atomicᵁ)
+function Atom_Model(N::Int, B::Int, Z::Int, eꜛ::Int, T::Float64; U::Unit{Float64}=Atomicᵁ)
     @unpack mₑ, ħ, Eᵁₖ = U
     Atom_Model(N,B,T,Z,eꜛ)
 end

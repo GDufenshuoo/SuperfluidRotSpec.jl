@@ -2,7 +2,8 @@
 # Atom_Model
 include("Atom.jl")
 
-# SuperfluidRotor_Model
+# Superfluid_Rotor_Model
+include("SuperfluidFixRotor.jl")
 include("SuperfluidRotor.jl")
 include("ClassicRotor.jl")
 

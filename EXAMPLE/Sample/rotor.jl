@@ -14,7 +14,7 @@ for i in eachindex(init_conf[1,:])
     init_conf[:,i] .= -10.0,8*cos(2pi*i/N),5*sin(2pi*i/N)
 end
 
-OCSpH2 = SuperfluidRotor(
+OCSpH2 = SuperfluidFixRotor(
     N, B, T, "PES/OCS.PES", "OCS_paraH2", "paraH2_paraH2";
     L2l = 1/5.29177210903e-1,
     E2e = 3.1668105084779793e-6);#3.1668105084779793e-6/315775.13

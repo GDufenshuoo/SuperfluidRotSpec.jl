@@ -14,7 +14,7 @@ function Observe(lP,l::ClassicRotor)
     return pb
 end
 
-function Observe(lP,l::SuperfluidRotor)
+function Observe(lP,l::SuperfluidFixRotor)
     @unpack N,B = l
     P = size(lP,1)
     pb = zeros(2,B,N,P)
