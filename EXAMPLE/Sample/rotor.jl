@@ -4,7 +4,7 @@ using DelimitedFiles
 
 pythonplot()
 
-N = 10
+N = 2
 B = 128
 T = 0.37
 
@@ -32,7 +32,7 @@ normalize=:pdf)
 histogram2d(Op[2,:,:,:][:],Op[1,:,:,:][:],bins=(100, 100), show_empty_bins=true,
 normalize=:pdf)
 
- lP_w,lP,lPststs = runHMC(OCSpH2;
+lP_w,lP,lPststs = runHMC(OCSpH2;
 lP_samples = 10, lP_adapts = 5, initθ = C2Q_init(ClP,OCSpH2))
 
 open("output", "w") do io
@@ -54,7 +54,18 @@ normalize=:pdf)
 # histogram2d(Op[2,1,2,:],Op[1,1,2,:],bins=(100, 100), show_empty_bins=true,
 # normalize=:pdf,xlim = (-10, 10),ylim = (0, 10),background_color=:Black)
 
+R_OCSpH2 = SuperfluidRotor(
+    N, B, 64, T, 0.202_857, 
+    "PES/OCS.PES", "OCS_paraH2", "paraH2_paraH2";
+    L2l = 1/5.29177210903e-1,
+    E2e = 3.1668105084779793e-6
+);#3.1668105084779793e-6/315775.13
 
+P = rand(3N*B+5*64)
+R_OCSpH2(P)
+
+lP_w,lP,lPststs = runHMC(R_OCSpH2;
+lP_samples = 10, lP_adapts = 5, initθ = init_conf)
 
 """ 
 pes = C_OCSpH2.rotor

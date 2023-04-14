@@ -36,6 +36,7 @@ export set_potention
 include("Model/Model.jl")
 export Atom_Model,Set_Atom_Model
 export SuperfluidFixRotor
+export SuperfluidRotor
 export ClassicRotor,C2Q_init
 
 using AdvancedHMC
