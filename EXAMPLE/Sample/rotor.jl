@@ -5,7 +5,7 @@ using DelimitedFiles
 pythonplot()
 
 N = 2
-B = 128
+B = 24
 T = 0.37
 
 init_conf = zeros(3,N)
@@ -55,17 +55,17 @@ normalize=:pdf)
 # normalize=:pdf,xlim = (-10, 10),ylim = (0, 10),background_color=:Black)
 
 R_OCSpH2 = SuperfluidRotor(
-    N, B, 64, T, 0.202_857, 
+    N, B, 12, T, 0.202_857, 
     "PES/OCS.PES", "OCS_paraH2", "paraH2_paraH2";
     L2l = 1/5.29177210903e-1,
     E2e = 3.1668105084779793e-6
 );#3.1668105084779793e-6/315775.13
 
-P = rand(3N*B+5*64)
+P = rand(3N*B+5*12)
 R_OCSpH2(P)
-
+P[3N*B+1:end] .= 0
 lP_w,lP,lPststs = runHMC(R_OCSpH2;
-lP_samples = 10, lP_adapts = 5, initθ = init_conf)
+lP_samples = 10, lP_adapts = 5, initθ = P)
 
 """ 
 pes = C_OCSpH2.rotor

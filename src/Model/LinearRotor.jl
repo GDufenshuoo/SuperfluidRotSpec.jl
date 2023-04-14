@@ -29,7 +29,7 @@ function propagator_element(Lₘ::Int, x::Real,τ::Real,B::Real)
     return abs(propagator)
 end
 
-function Rotation_x(x::Array,θ::Real)
+function Rotation_x(x,θ::Real)
     [
         1       0       0
         0   cos(θ) -sin(θ)
@@ -37,7 +37,7 @@ function Rotation_x(x::Array,θ::Real)
     ]*x
 end
 
-function Rotation_y(x::Array,θ::Real)
+function Rotation_y(x,θ::Real)
     [
         cos(θ)  0   sin(θ)
             0   1   0
@@ -45,7 +45,7 @@ function Rotation_y(x::Array,θ::Real)
     ]*x
 end
 
-function Rotation_z(x::Array,θ::Real)
+function Rotation_z(x,θ::Real)
     [
         cos(θ) -sin(θ)  0
         sin(θ)  cos(θ)  0
@@ -56,21 +56,21 @@ end
 """
 Just Care about the x axis
 """
-function ix_Rotation_y(x::Array,θ::Real)
+function ix_Rotation_y(x,θ::Real)
     return (cos(θ)*x[1]+sin(θ)*x[3])
 end
 
 """
 Just Care about the x axis
 """
-function ix_Rotation_z(x::Array,θ::Real)
+function ix_Rotation_z(x,θ::Real)
     return (cos(θ)*x[1]-sin(θ)*x[2])
 end
 
-function ix_rot_yz(x::Array,θ::Array)
-    x = Rotation_y(x,θ[1])
+function ix_rot_yz(x,θ)
+    Ry_x = Rotation_y(x,θ[1])
     # println("$x \n $(Rotation_z(x,θ[2]))")
-    return ix_Rotation_z(x,θ[2])
+    return ix_Rotation_z(Ry_x,θ[2])
 end
 
 """
