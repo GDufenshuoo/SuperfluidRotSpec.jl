@@ -12,12 +12,13 @@
 `U`: Atomic unit (default)
 `am2An` Unit Transform PE(Atomic*am2An)
 """
-struct SuperfluidRotor{I<:Integer,F<:Real,PES_r,PES_f}
+struct SuperfluidRotor{I<:Integer,F<:Real,LR,PES_r,PES_f}
     N::I
     B::I
-     RB::I
+    RB::I
     τ::F
     E2e::F
+    Linear_rotor::PES_r
     rotor::PES_r
     superfluid::PES_f
 end
@@ -26,37 +27,42 @@ function SuperfluidRotor(N::Int, B::Int, RB::Int, T::Real,
     file::String, rotor::String, superfluid::String;
     U::Unit{Float64}=Atomicᵁ, L2l::Real=1.0, E2e::Real=1.0)
 
+
     @unpack mₑ, ħ, Eᵁₖ = U
     β = 1/(Eᵁₖ*T)
     τ = β/B
     
     return SuperfluidRotor(
         N,B,RB,τ,E2e,
+        LinearRotor(1.4387752224/(T*RB)),
         set_potention(load(file)[rotor];L2l),
         set_potention(load(file)[superfluid];L2l)
         )
 end
 
 function (Problem::SuperfluidRotor)(φ)
-    @unpack N, B, RB, τ, rotor, superfluid,E2e = Problem
+    @unpack N, B, RB, τ, Linear_rotor, rotor, superfluid,E2e = Problem
     φ_Rotor = 5*RB
     βE = (
         𝑇ᴱ_B2019(reshape(φ[begin:φ_Rotor-1],3,B,N),N,B,τ) - 
         𝑈_SuperfluidRotor(
             reshape(φ[begin:φ_Rotor-1],3,B,N),
             reshape(φ[φ_Rotor:end],5,RB),
-            N,B,RB,τ,rotor,superfluid;E2e))
+            N,B,RB,τ,
+            Linear_rotor,rotor,superfluid;E2e))
     return βE
 end
 
-function 𝑈_SuperfluidRotor(x,Rx,N::Int,B::Int,RB::Int,τ::Real,rotor,superfluid;E2e=1.0)
+function 𝑈_SuperfluidRotor(x,Rx,N::Int,B::Int,RB::Int,τ::Real,Linear_rotor,rotor,superfluid;E2e=1.0)
     U1 = 0.0
     U2 = 0.0
-    βU3 = β𝑈_Rotor(Rx)
+    expβU3 = 0.0
     for i in 1:N
         for b in 1:B
             r = norm(x[:,b,i].-Rx[1:3,fld(b+RB-1,RB)])
             cos = ix_rot_yz(x[:,b,i],Rx[4:5,fld(b+RB-1,RB)])/r
+            θ = acos(cos) - acos(x[:,b,i]/r)
+            expβU3 *= Linear_rotor(θ)
             U1 += (r > 70.0 ? Inf : rotor(r,cos))
     end end
     for i in 2:N
@@ -64,7 +70,7 @@ function 𝑈_SuperfluidRotor(x,Rx,N::Int,B::Int,RB::Int,τ::Real,rotor,superflu
             for b in 1:B
                 U2 += superfluid(norm(x[:,b,i].-x[:,b,j]))
     end end end
-    return (U1+U2)*τ*E2e + βU3
+    return (U1+U2)*τ*E2e + log(expβU3)
 end
 
 function β𝑈_Rotor(θ::Array)
@@ -74,15 +80,6 @@ function β𝑈_Rotor(θ::Array)
     end
     return U
 end
-
-# using Plots
-
-# const taunit = 1.4387752224
-# const temprt = 0.15
-# const B = 0.202_857  # Rotational constant
-# nslice = 512
-# τ =  taunit / (0.37 * nslice)  # Time step
-# const grid_size = 100
 
 """
 # Calculate  legendre polynomials
@@ -156,4 +153,13 @@ end
 function ix_rot_yz(x::Array,θ::Array)
     x = ix_Rotation_y(x,θ[1])
     return x = ix_Rotation_y(x,θ[2])
+end
+
+"""
+0.003<τB<0.6  maxerr<0.01
+"""
+function LinearRotor(τB)
+    h = (((0.07957649676528922 / τB) + (τB * 0.005536640332578352)) + 0.026534110958300494)
+    σ = (((0.2508712935565096 / τB) + -0.09420101021905938) ^ 0.4995735458437035)
+    return LinearRotor(θ) = h*exp(-(σ*θ)^2)
 end
