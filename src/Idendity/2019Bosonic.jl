@@ -7,7 +7,7 @@
 function 𝑇ᴱ_B2019(x,N::Int,B::Int,τ::Real)
     𝑘 = -1/(2τ)
     A = zeros(Real,N,3)
-    A[:,1] .= 1.0
+    A[:,1] .= 0.0
 
     for i in 1:N
         for b in 2:B
@@ -18,8 +18,7 @@ function 𝑇ᴱ_B2019(x,N::Int,B::Int,τ::Real)
     for k in 1:N
         for i in N-k+1:N
         R = (i == N) ? N-k+1 : i
-        A[i,2] += 𝑝(x[:,B,i],x[:,1,R]) + 
-                    + A[i,3]
+        A[i,2] += 𝑝(x[:,B,i],x[:,1,R]) + A[i,3]
     end end
 
     # EN(k) = A[i,2]

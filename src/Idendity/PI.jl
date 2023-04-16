@@ -8,3 +8,13 @@ function 𝑝(a,b)
     end
     return p
 end
+
+function β𝑇ₙ(x,m::Real,B::Int,τ::Real)
+    T = 0.0
+    k = -1/(2τ)
+    T += 𝑝(x[:,B],x[:,1])
+    for b in 2:B
+        T += 𝑝(x[:,b-1],x[:,b])
+    end
+    return m*k*T
+end
