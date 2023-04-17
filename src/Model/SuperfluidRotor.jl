@@ -48,6 +48,8 @@ function SuperfluidRotor(
     @unpack mₑ, ħ, Eᵁₖ = U
     β = 1/(Eᵁₖ*T)
     τ = β/B
+
+    println("$(1.4387752224LB/(T*RB))")
     
     return SuperfluidRotor(
         N,B,m,rRB,τ,E2e,
@@ -87,10 +89,11 @@ function 𝑈_SuperfluidRotor(x,Rx,Rθ,N::Int,B::Int,rRB::Int,τ::Real,Linear_ro
             r = norm(rx)
             # println("Urx $Urx $r ")
             # println("$(ix_rot_yz(x[:,b,i],Rx[4:5,fld(b+RB-1,RB)]))")
-            cosθ = ix_rot_yz(rx,Rθ[:,rb_i].%pi)/r
+            cosθ = ix_rot_yz(rx,Rθ[:,rb_i])/r
             # println("rx $rx r $r")
             # println("cos $cos rx[1]/r $(rx[1]/r)")
-            θ = acos(cosθ) - acos(rx[1]/r)
+            θ = acos(cosθ)
+            # println("$(Rθ[:,rb_i]) $θ $(acos(cosθ)) - $(acos(rx[1]/r)) \n $(cosθ) $(rx[1]/r)")
             βU3 += log(Linear_rotor(θ))
             U1 += (r > 70.0 ? Inf : rotor(r,cosθ))
     end end

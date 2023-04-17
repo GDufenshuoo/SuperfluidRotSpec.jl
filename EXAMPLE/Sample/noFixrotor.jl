@@ -4,8 +4,8 @@ using DelimitedFiles
 
 pythonplot()
 
-N = 3
-B = 64
+N = 10
+B = 100
 T = 0.37
 
 OCSpH2 = SuperfluidFixRotor(
@@ -37,22 +37,46 @@ FlP_w,FlP,FlPststs = runHMC(OCSpH2;
 lP_samples = 1_000, lP_adapts = 500, initθ = C2Q_init(ClP,OCSpH2))
 
 lP_w,lP,lPststs = runHMC(R_OCSpH2;
-lP_samples = 100, lP_adapts = 50, initθ = C2Q_init(ClP,R_OCSpH2))
+lP_samples = 1_000, lP_adapts = 500, initθ = C2Q_init(ClP,R_OCSpH2))
 
-p = rand(3*N)
+  p = rand(3*N)
+
+  FOp = Observe(FlP,OCSpH2);
+
+  lP[end][3*B*N+1:end]
+  histogram(lP[end][3*B*N+1:end];bins=200)
+  histogram2d(FOp[2,:,1,:][:],FOp[1,:,1,:][:],bins=(100, 100), show_empty_bins=true,
+  normalize=:pdf,xlim = (-15, 15),ylim = (0, 15),background_color=:Black)
+  
+  histogram2d(FOp[2,:,:,:][:],FOp[1,:,:,:][:],bins=(500, 500), show_empty_bins=true,
+  normalize=:pdf)
 
 R_OCSpH2(C2Q_init([p],R_OCSpH2))
 
-open("output_fixrotor", "w") do io
-    writedlm(io,[ClP_w,ClP,ClPststs])
+open("output_fixrotor_1", "w") do io
+    writedlm(io,[FlP_w,FlP,ClPststs])
 end
+open("output_nofixrotor_1", "w") do io
+    writedlm(io,[lP_w,lP,ClPststs])
+end
+
+R_OCSpH2(lP[1])
+
+φm = 3N*B
+RB = fld(B,2)
+Rxθ = reshape(lP[1][φm+1:end],5,RB)
+Rθ = Rxθ[4:5,:]
+Rx = Rxθ[1:3,:]
 
 Op = Observe(lP,R_OCSpH2);
 
-lP[end][3*B*N+1:end]
-
+histogram(lP[end][3*B*N+1:end];bins=200)
 histogram2d(Op[2,:,1,:][:],Op[1,:,1,:][:],bins=(100, 100), show_empty_bins=true,
 normalize=:pdf,xlim = (-15, 15),ylim = (0, 15),background_color=:Black)
 
 histogram2d(Op[2,:,:,:][:],Op[1,:,:,:][:],bins=(100, 100), show_empty_bins=true,
-normalize=:pdf,xlim = (-15, 15),ylim = (0, 15),background_color=:Black)
+normalize=:pdf)
+
+f(x) = R_OCSpH2.Linear_rotor(x)
+plot(-pi:0.01:pi,lf)
+

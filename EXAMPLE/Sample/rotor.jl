@@ -85,7 +85,7 @@ R_OCSpH2(lP[5])
 lP[end][3N*B+1:end]
 
 f(x) = R_OCSpH2.Linear_rotor(x)
-plot(-pi:0.01:pi,f)
+plot(-pi:0.01:pi,lf)
 
 
  """ 
