@@ -82,21 +82,17 @@ function 𝑈_SuperfluidRotor(x,Rx,Rθ,N::Int,B::Int,rRB::Int,τ::Real,Linear_ro
     U2 = 0.0
     βU3 = 0.0
     for i in 1:N
-        for b in 1:B
-            rb_i = fld(b+rRB-1,rRB)
-            # println("rRB $rRB rb_i $rb_i")
-            rx = (x[:,b,i].-Rx[:,rb_i])
-            r = norm(rx)
-            # println("Urx $Urx $r ")
-            # println("$(ix_rot_yz(x[:,b,i],Rx[4:5,fld(b+RB-1,RB)]))")
-            cosθ = ix_rot_yz(rx,Rθ[:,rb_i])/r
-            # println("rx $rx r $r")
-            # println("cos $cos rx[1]/r $(rx[1]/r)")
-            θ = acos(cosθ)
-            # println("$(Rθ[:,rb_i]) $θ $(acos(cosθ)) - $(acos(rx[1]/r)) \n $(cosθ) $(rx[1]/r)")
+        for rb in 1:fld(B,rRB)
+            prb = (rb == 1 ? fld(B,rRB) : rb-1)
+            θ = acos(ix_rot_yz(rx,Rθ[:,rb].-Rθ[:,prb]))
             βU3 += log(Linear_rotor(θ))
+            for b in 1:rRB
+            b += rRB*rb
+            rx = (x[:,b,i].-Rx[:,rb])
+            r = norm(rx)
+            cosθ = ix_rot_yz(rx,Rθ[:,rb_i])/r
             U1 += (r > 70.0 ? Inf : rotor(r,cosθ))
-    end end
+    end end end
     for i in 2:N
         for j in 1:i-1
             for b in 1:B
