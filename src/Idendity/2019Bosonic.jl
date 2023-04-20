@@ -11,7 +11,7 @@ function 𝑇ᴱ_B2019(x,N::Int,B::Int,τ::Real)
 
     for i in 1:N
         for b in 2:B
-            A[i,3] += 𝑝(x[:,b-1,i],x[:,b,1])
+            A[i,3] += 𝑝(x[:,b-1,i],x[:,b,i])
     end end
 
     # Can be better but i don't want to :3
