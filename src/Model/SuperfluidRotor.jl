@@ -81,24 +81,27 @@ function 𝑈_SuperfluidRotor(x,Rx,Rθ,N::Int,B::Int,rRB::Int,τ::Real,Linear_ro
     U1 = 0.0
     U2 = 0.0
     βU3 = 0.0
+
+    βU3 += sum(@. log(Linear_rotor(Rθ[:,1]-Rθ[:,fld(B,rRB)])))
+    for rb in 2:fld(B,rRB)
+        βU3_fl += sum(@. log(Linear_rotor(Rθ[:,rb]-Rθ[:,rb-1])))
+    end
+
     for i in 1:N
-        for rb in 1:fld(B,rRB)
-            prb = (rb == 1 ? fld(B,rRB) : rb-1)
-            θ = acos(ix_rot_yz(rx,Rθ[:,rb].-Rθ[:,prb]))
-            βU3 += log(Linear_rotor(θ))
-            for b in 1:rRB
-            b += rRB*rb
+        for b in 1:B
+            rb = fld(b+rRB-1,rRB)
             rx = (x[:,b,i].-Rx[:,rb])
             r = norm(rx)
-            cosθ = ix_rot_yz(rx,Rθ[:,rb_i])/r
+            cosθ = ix_rot_yz(rx,Rθ[:,rb])/r
             U1 += (r > 70.0 ? Inf : rotor(r,cosθ))
-    end end end
+    end end
+
     for i in 2:N
         for j in 1:i-1
             for b in 1:B
                 U2 += superfluid(norm(x[:,b,i].-x[:,b,j]))
     end end end
-    # println("$U1 $U2 $βU3")
+
     return (U1+U2)*τ*E2e + βU3
 end
 

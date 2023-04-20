@@ -4,7 +4,7 @@
 function runHMC(ℓ::ClassicRotor;
     lP_samples = 10_000, lP_adapts = 5_000, initθ)
     @unpack N = ℓ
-    println("Classic Rotor \n Begin to HMC")
+    println(">"^10*"Classic Rotor \n Begin to HMC")
     rng = Random.GLOBAL_RNG
 
     T = as(Array, 3*N)
@@ -26,7 +26,7 @@ end
 function runHMC(ℓ::SuperfluidFixRotor;
     lP_samples = 10_000, lP_adapts = 5_000, initθ)
     @unpack N, B = ℓ
-    println("Superfluid Rotor \n Begin to HMC")
+    println(">"^10*"Superfluid fixed-Rotor \n Begin to HMC")
     rng = Random.GLOBAL_RNG
     T = as(Array, 3*N*B)
     ℓ = TransformedLogDensity(T, ℓ)
@@ -47,7 +47,7 @@ function runHMC(ℓ::SuperfluidRotor;
     lP_samples = 10_000, lP_adapts = 5_000, initθ)
     @unpack N, B, rRB = ℓ
     RB = fld(B,rRB)
-    println("Superfluid Rotor \n Begin to HMC")
+    println(">"^10*"Superfluid Rotor \n Begin to HMC")
     rng = Random.GLOBAL_RNG
     T = as(Array, 3*N*B+5*RB)
     ℓ = TransformedLogDensity(T, ℓ)
