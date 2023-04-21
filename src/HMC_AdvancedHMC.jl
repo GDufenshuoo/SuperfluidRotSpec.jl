@@ -2,7 +2,7 @@
 ## run HMC to solve the problem
 """
 function runHMC(ℓ::ClassicRotor;
-    lP_samples = 10_000, lP_adapts = 5_000, initθ)
+    lP_samples = 10_000, lP_adapts = 5_000, initθ, showpro=false)
     @unpack N = ℓ
     println(">"^10*"Classic Rotor \n Begin to HMC")
     rng = Random.GLOBAL_RNG
@@ -16,7 +16,7 @@ function runHMC(ℓ::ClassicRotor;
     proposal = NUTS{MultinomialTS, GeneralisedNoUTurn}(integrator)
     adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integrator))
     # adaptor = StanHMCAdaptor(StepSizeAdaptor(0.8, integrator))
-    lP, lP_stats = sample(rng, hamiltonian, proposal, initθ, lP_samples, adaptor, lP_adapts;progress=true)
+    lP, lP_stats = sample(rng, hamiltonian, proposal, initθ, lP_samples, adaptor, lP_adapts;progress=showpro)
     return lP[1:lP_adapts], lP[end-lP_adapts+1:end], lP_stats
 end
 
@@ -24,7 +24,7 @@ end
 ## run HMC to solve the problem
 """
 function runHMC(ℓ::SuperfluidFixRotor;
-    lP_samples = 10_000, lP_adapts = 5_000, initθ)
+    lP_samples = 10_000, lP_adapts = 5_000, initθ, showpro=false)
     @unpack N, B = ℓ
     println(">"^10*"Superfluid fixed-Rotor \n Begin to HMC")
     rng = Random.GLOBAL_RNG
@@ -36,7 +36,7 @@ function runHMC(ℓ::SuperfluidFixRotor;
     integrator = Leapfrog(initial_ϵ)
     proposal = NUTS{MultinomialTS, GeneralisedNoUTurn}(integrator)
     adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integrator))
-    lP, lP_stats = sample(hamiltonian, proposal, initθ, lP_samples, adaptor, lP_adapts;progress=true)
+    lP, lP_stats = sample(hamiltonian, proposal, initθ, lP_samples, adaptor, lP_adapts;progress=showpro)
     return lP[1:lP_adapts], lP[end-lP_adapts+1:end], lP_stats
 end
 
@@ -44,7 +44,7 @@ end
 ## run HMC to solve the problem
 """
 function runHMC(ℓ::SuperfluidRotor;
-    lP_samples = 10_000, lP_adapts = 5_000, initθ)
+    lP_samples = 10_000, lP_adapts = 5_000, initθ, showpro=false)
     @unpack N, B, rRB = ℓ
     RB = fld(B,rRB)
     println(">"^10*"Superfluid Rotor \n Begin to HMC")
@@ -57,6 +57,6 @@ function runHMC(ℓ::SuperfluidRotor;
     integrator = Leapfrog(initial_ϵ)
     proposal = NUTS{MultinomialTS, GeneralisedNoUTurn}(integrator)
     adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integrator))
-    lP, lP_stats = sample(hamiltonian, proposal, initθ, lP_samples, adaptor, lP_adapts;progress=true)
+    lP, lP_stats = sample(hamiltonian, proposal, initθ, lP_samples, adaptor, lP_adapts;progress=showpro)
     return lP[1:lP_adapts], lP[end-lP_adapts+1:end], lP_stats
 end

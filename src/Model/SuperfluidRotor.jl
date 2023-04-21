@@ -84,7 +84,7 @@ function 𝑈_SuperfluidRotor(x,Rx,Rθ,N::Int,B::Int,rRB::Int,τ::Real,Linear_ro
 
     βU3 += sum(@. log(Linear_rotor(Rθ[:,1]-Rθ[:,fld(B,rRB)])))
     for rb in 2:fld(B,rRB)
-        βU3_fl += sum(@. log(Linear_rotor(Rθ[:,rb]-Rθ[:,rb-1])))
+        βU3 += sum(@. log(Linear_rotor(Rθ[:,rb]-Rθ[:,rb-1])))
     end
 
     for i in 1:N

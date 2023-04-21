@@ -15,7 +15,7 @@ using ReverseDiff
 # using Zygote
 # include("HMC.jl")
 # export runHMC
-# using FLoops
+using FLoops
 
 using Statistics
 using LinearAlgebra
@@ -38,6 +38,7 @@ export Atom_Model,Set_Atom_Model
 export SuperfluidFixRotor
 export SuperfluidRotor
 export ClassicRotor,C2Q_init
+export Change_ModelRotor
 
 using AdvancedHMC
 include("HMC_AdvancedHMC.jl")

@@ -9,17 +9,21 @@ function 𝑇ᴱ_B2019(x,N::Int,B::Int,τ::Real)
     A = zeros(Real,N,3)
     A[:,1] .= 0.0
 
+    @floop begin
     for i in 1:N
         for b in 2:B
             A[i,3] += 𝑝(x[:,b-1,i],x[:,b,i])
     end end
+    end
 
+    @floop begin
     # Can be better but i don't want to :3
     for k in 1:N
         for i in N-k+1:N
         R = (i == N) ? N-k+1 : i
         A[i,2] += 𝑝(x[:,B,i],x[:,1,R]) + A[i,3]
     end end
+    end
 
     # EN(k) = A[i,2]
     # exp(k*VB(N-k)) = A[i-k,1]

@@ -53,3 +53,9 @@ function C2Q_init(lP,ℓ::SuperfluidRotor)
     end
     return append!(initp[:],0.001*randn(5*RB))
 end
+
+function C2Q_init(ℓ::SuperfluidRotor)
+    @unpack N,B,rRB = ℓ
+    RB = fld(B,rRB)
+    return 0.001*randn(5*RB)
+end

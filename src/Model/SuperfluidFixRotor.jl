@@ -36,6 +36,11 @@ function SuperfluidFixRotor(N::Int, B::Int, T::Real,
         )
 end
 
+function Change_ModelRotor(ℓ::SuperfluidFixRotor,pN::Int,pB::Int,T::Real)
+    @unpack N, B, τ, E2e, rotor, superfluid = ℓ
+    return SuperfluidFixRotor(pN,pB,τ/(T*B),E2e,rotor,superfluid)
+end
+
 function (Problem::SuperfluidFixRotor)(φ)
     @unpack N, B, τ, rotor, superfluid,E2e = Problem
     βE = (
