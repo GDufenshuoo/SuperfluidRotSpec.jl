@@ -20,17 +20,16 @@ struct SuperfluidRotor{I<:Integer,F<:Real,PES_r,PES_f}
     m::F
     rRB::I
     τ::F
-    E2e::F
     Linear_rotor::Function
     rotor::PES_r
     superfluid::PES_f
 end
 
 function SuperfluidRotor(ℓ::SuperfluidFixRotor, T, m::Real, RB::Int,LB::Real)
-    @unpack N, B, τ, E2e, rotor, superfluid = ℓ
+    @unpack N, B, τ, rotor, superfluid = ℓ
     
     return SuperfluidRotor(
-        N,B,m,RB,τ,E2e,
+        N,B,m,RB,τ,
         LinearRotor(1.4387752224LB/(T*RB)),
         rotor,superfluid
         )
@@ -52,7 +51,7 @@ function SuperfluidRotor(
     println("$(1.4387752224LB/(T*RB))")
     
     return SuperfluidRotor(
-        N,B,m,rRB,τ,E2e,
+        N,B,m,rRB,τ,
         LinearRotor(1.4387752224LB/(T*RB)),
         set_potention(load(file)[rotor];L2l),
         set_potention(load(file)[superfluid];L2l)
@@ -60,27 +59,32 @@ function SuperfluidRotor(
 end
 
 function (Problem::SuperfluidRotor)(φ)
-    @unpack N, B, m, rRB, τ, Linear_rotor, rotor, superfluid,E2e = Problem
+    @unpack N, B, m, rRB, τ, Linear_rotor, rotor, superfluid = Problem
+    τ⁻¹ = 1/τ
     φm = 3N*B
     RB = fld(B,rRB)
-    Rxθ = reshape(φ[φm+1:end],5,RB)
-    Rθ = Rxθ[4:5,:]
-    Rx = Rxθ[1:3,:]
+    Rxθ = reshape((@view φ[φm+1:end]),5,RB)
+    Rθ = @view Rxθ[4:5,:]
+    Rx = @view Rxθ[1:3,:]
+
+    x = reshape(φ[begin:φm],3,B,N)
+
+    L_X = LX(Path_L(x),Path_X(x),τ⁻¹)
+
     βE = (
-        β𝑇ₙ(Rx,m,RB,τ) +
-        𝑇ᴱ_B2019(reshape(φ[begin:φm],3,B,N),N,B,τ) - 
-        𝑈_SuperfluidRotor(
-            reshape(φ[begin:φm],3,B,N),
-            Rx,Rθ,
-            N,B,rRB,τ,
-            Linear_rotor,rotor,superfluid;E2e))
+        Path(Rx)*τ*m +
+        Tb(N,L_X) + 
+        -U(x,Rx,Rθ,Problem)
+        )
     return βE
 end
 
-function 𝑈_SuperfluidRotor(x,Rx,Rθ,N::Int,B::Int,rRB::Int,τ::Real,Linear_rotor,rotor,superfluid;E2e=1.0)
-    U1 = 0.0
-    U2 = 0.0
+function U(x,Rx,Rθ,Problem::SuperfluidRotor)
+    @unpack N, B, m, rRB, τ, Linear_rotor, rotor, superfluid = Problem
+
+    U = 0.0
     βU3 = 0.0
+    rx = zeros(Real,3)
 
     βU3 += sum(@. log(Linear_rotor(Rθ[:,1]-Rθ[:,fld(B,rRB)])))
     for rb in 2:fld(B,rRB)
@@ -91,24 +95,27 @@ function 𝑈_SuperfluidRotor(x,Rx,Rθ,N::Int,B::Int,rRB::Int,τ::Real,Linear_ro
         for b in 1:B
             rb = fld(b+rRB-1,rRB)
             rx = (x[:,b,i].-Rx[:,rb])
-            r = norm(rx)
-            cosθ = ix_rot_yz(rx,Rθ[:,rb])/r
-            U1 += (r > 70.0 ? Inf : rotor(r,cosθ))
+            # rx = [x[1,b,i].-Rx[1,rb],x[2,b,i].-Rx[2,rb],x[3,b,i].-Rx[3,rb]]
+            r = sqrt(
+                (x[1,b,i])^2 + 
+                (x[2,b,i])^2 + 
+                (x[3,b,i])^2
+                )
+            cosθ = ix_rot_yz(rx,Rθ[1,rb],Rθ[2,rb])/r
+            U += (r > 70.0 ? Inf : rotor(r,cosθ))
     end end
 
     for i in 2:N
         for j in 1:i-1
             for b in 1:B
-                U2 += superfluid(norm(x[:,b,i].-x[:,b,j]))
+                r = sqrt(
+                    (x[1,b,i].-x[1,b,j])^2 + 
+                    (x[2,b,i].-x[2,b,j])^2 + 
+                    (x[3,b,i].-x[3,b,j])^2
+                    )
+                U += superfluid(r)
     end end end
 
-    return (U1+U2)*τ*E2e + βU3
+    return U*τ + βU3
 end
 
-function β𝑈_Rotor(θ::Array)
-    U = 0.0
-    for i in eachindex(θ)
-        U += A(θ[i])
-    end
-    return U
-end

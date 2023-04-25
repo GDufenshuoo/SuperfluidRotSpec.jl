@@ -1,20 +1,13 @@
-"""
-### get the 𝑝
-"""
-function 𝑝(a,b)
-    p = 0.0
-    for i in 1:3
-        p += (a[i]-b[i])^2
+function Path(x)
+    A = 0.0
+    B = size(x,2)
+    N = size(x,3)
+    for n in 1:N
+        for (i,b) in zip(n,2:B)
+            A += (x[1,b-1,i]-x[1,b,i])^2
+            A += (x[2,b-1,i]-x[2,b,i])^2
+            A += (x[3,b-1,i]-x[3,b,i])^2
+        end
     end
-    return p
-end
-
-function β𝑇ₙ(x,m::Real,B::Int,τ::Real)
-    T = 0.0
-    k = -1/(2τ)
-    T += 𝑝(x[:,B],x[:,1])
-    for b in 2:B
-        T += 𝑝(x[:,b-1],x[:,b])
-    end
-    return m*k*T
+    return A
 end

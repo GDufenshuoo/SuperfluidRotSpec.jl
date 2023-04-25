@@ -2,7 +2,7 @@
 """
 am2An = 5.29177210903e-1
 """
-function set_potention(Pot;L2l=1.0)
+function set_potention(Pot;L2l=1.0,E2e=1.0)
 
     if Pot.Dimension == 1
         scale = (Pot.scale_begin[1]:Pot.bin[1]:Pot.scale_end[1]).*L2l
@@ -13,7 +13,7 @@ function set_potention(Pot;L2l=1.0)
 
     return LinearInterpolation(
         scale,
-        Pot._PES,
+        Pot._PES.*E2e,
         extrapolation_bc=Line())
 end
 

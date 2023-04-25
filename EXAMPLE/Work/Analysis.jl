@@ -1,7 +1,7 @@
 using SuperfluidRotSpec
 using JLD2
 N = 10
-B = 24
+B = 128
 T = 0.37
 
 const ℓ = SuperfluidFixRotor(
@@ -19,11 +19,12 @@ R_OCSpH2 = SuperfluidRotor(
 C_OCSpH2 = ClassicRotor(OCSpH2);
 
 using Plots
-Op = Observe(load("001_single/file_001_single_N10_B24_37_Fix")["FlP"],OCSpH2);
-n = 10
-histogram2d(Op[2,:,n,:][:],Op[1,:,n,:][:],bins=(100, 100), show_empty_bins=true,
-normalize=:pdf)
-savefig("myplot_1.png") 
+    Op = Observe(load("EXAMPLE/Work/file_N10_B256_37_nofix")["lP"],R_OCSpH2);
 histogram2d(Op[2,:,:,:][:],Op[1,:,:,:][:],bins=(100, 100), show_empty_bins=true,
 normalize=:pdf)
-savefig("myplot_2.png") 
+savefig("myplot_2_$(N)_$(B).png") 
+for n in 1:N
+    histogram2d(Op[2,:,n,:][:],Op[1,:,n,:][:],bins=(100, 100), show_empty_bins=true,
+    normalize=:pdf)
+    savefig("myplot_1_$(N)_$(B)_$n.png") 
+end

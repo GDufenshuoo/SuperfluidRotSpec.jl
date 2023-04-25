@@ -80,3 +80,7 @@ normalize=:pdf)
 f(x) = R_OCSpH2.Linear_rotor(x)
 plot(-pi:0.01:pi,lf)
 
+using StatsBase
+bin = fit(Histogram, (Op[2,:,:,:][:],Op[1,:,:,:][:]),nbins=500)
+contour(bin.weights',fill = true)
+

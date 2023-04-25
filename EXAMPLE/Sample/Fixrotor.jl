@@ -5,7 +5,7 @@ using DelimitedFiles
 pythonplot()
 
 N = 3
-B = 64
+B = 256
 T = 0.37
 
 init_conf = zeros(3,N)

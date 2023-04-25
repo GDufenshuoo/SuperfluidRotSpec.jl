@@ -1,46 +1,117 @@
+
+struct LX
+    E_::Array
+    Ex_::Matrix
+    τ⁻¹::Real
+end
+
 """
 # Bosonic 𝑇 using The method from the 
     DOI: 10.1073/pnas.1913365116
     "Path integral molecular dynamics for bosons"
-### Almost as fast as it can be
 """
-function 𝑇ᴱ_B2019(x,N::Int,B::Int,τ::Real)
-    𝑘 = -1/(2τ)
-    A = zeros(Real,N,3)
-    A[:,1] .= 0.0
-
-    @floop begin
+function Tb(N,LX)
+    # A = zeros(Real,BigFloat,N)
+    A = zeros(Real,N)
     for i in 1:N
-        for b in 2:B
-            A[i,3] += 𝑝(x[:,b-1,i],x[:,b,i])
-    end end
+        ExV!(A,i,LX)
     end
-
-    @floop begin
-    # Can be better but i don't want to :3
-    for k in 1:N
-        for i in N-k+1:N
-        R = (i == N) ? N-k+1 : i
-        A[i,2] += 𝑝(x[:,B,i],x[:,1,R]) + A[i,3]
-    end end
-    end
-
-    # EN(k) = A[i,2]
-    # exp(k*VB(N-k)) = A[i-k,1]
-    for i in 1:N
-        for k in 1:i
-            if i == k
-                A[i,1] += (exp(𝑘*(
-                    A[i,2]
-                )))/i
-            else
-                A[i,1] += A[i-k,1]*(exp(𝑘*(
-                    A[i,2]
-                )))/i
-    end end end
-
-    return log(A[N,1])
+    return A[end]
 end
+
+function ExV!(A,N,LX)
+    # eV = BigFloat(0.0)
+    eV = (0.0)
+    if N == 0
+        return 1.0
+    end
+    for k in 1:N-1
+        eV += A[N-k]*ExE(k,N,LX)
+    end
+    eV += ExE(N,N,LX)
+    A[N] = eV/N
+end
+
+function ExV(N,LX)
+    # eV = BigFloat(0.0)
+    eV = (0.0)
+    if N == 0
+        return 1.0
+    end
+    for k in 1:N
+        eV += ExV(N-k,LX)*ExE(k,N,LX)
+    end
+
+    return eV/N
+end
+
+function ExE(k,N,LX)
+    @unpack E_,Ex_,τ⁻¹ = LX
+    # E = BigFloat(0.0)
+    E = (0.0)
+    for l in N-k+1:N-1
+        E += E_[l] + Ex_[l,l+1]
+    end
+    E += E_[N] + Ex_[N,N-k+1]
+
+
+    return exp(-τ⁻¹*E)
+end
+
+function Path_L(x)
+    B = size(x,2)
+    N = size(x,3)
+    A = zeros(Real,N)
+
+    for n in 1:N
+        for (i,b) in zip(n,2:B)
+            A[i] += (x[1,b-1,i]-x[1,b,i])^2
+            A[i] += (x[2,b-1,i]-x[2,b,i])^2
+            A[i] += (x[3,b-1,i]-x[3,b,i])^2
+        end
+    end
+    return A
+end
+
+function Path_X(x)
+    B = size(x,2)
+    N = size(x,3)
+    A = zeros(Real,N,N)
+
+    for j in 1:N
+        for i in 1:j
+            A[i,j] += (x[1,1,i]-x[1,B,j])^2
+            A[i,j] += (x[2,1,i]-x[2,B,j])^2
+            A[i,j] += (x[3,1,i]-x[3,B,j])^2
+    end end
+    return A
+end
+
+function Path_L(A,x)
+    B = size(x,2)
+    N = size(x,3)
+    for n in 1:N
+        for (i,b) in zip(n,2:B)
+            A[i] += (x[1,b-1,i]-x[1,b,i])^2
+            A[i] += (x[2,b-1,i]-x[2,b,i])^2
+            A[i] += (x[3,b-1,i]-x[3,b,i])^2
+        end
+    end
+    return A
+end
+
+function Path_X(A,x)
+    B = size(x,2)
+    N = size(x,3)
+    for j in 1:N
+        for i in 1:j
+            A[i,j] += (x[1,1,i]-x[1,B,j])^2
+            A[i,j] += (x[2,1,i]-x[2,B,j])^2
+            A[i,j] += (x[3,1,i]-x[3,B,j])^2
+    end end
+    return A
+end
+
 
 
 

@@ -67,10 +67,9 @@ function ix_Rotation_z(x,θ::Real)
     return (cos(θ)*x[1]-sin(θ)*x[2])
 end
 
-function ix_rot_yz(x,θ)
-    Ry_x = Rotation_y(x,θ[1])
-    # println("$x \n $(Rotation_z(x,θ[2]))")
-    return ix_Rotation_z(Ry_x,θ[2])
+function ix_rot_yz(x,θ,ϕ)
+    Ry_x = Rotation_y(x,θ)
+    return ix_Rotation_z(Ry_x,ϕ)
 end
 
 """
